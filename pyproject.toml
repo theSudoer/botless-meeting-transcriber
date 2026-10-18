@@ -1,0 +1,65 @@
+[project]
+name = "botless-meeting-transcriber"
+version = "1.0.0"
+description = "Local, bot-free Microsoft Teams transcripts for Windows: records your side and theirs, transcribes on your GPU, nothing leaves your PC."
+readme = "README.md"
+license = "MIT"
+requires-python = "==3.12.*"
+keywords = ["teams", "transcription", "whisper", "wasapi", "windows", "meeting-notes", "privacy"]
+classifiers = [
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "faster-whisper>=1.1",
+    "numpy>=1.26",
+    "comtypes>=1.4.17",
+    "pycaw>=20260927",
+    "psutil>=7.2.2",
+    "rapidfuzz>=3.9",
+    "pyside6>=6.8",
+    "pywin32>=308",
+]
+
+[project.optional-dependencies]
+# NVIDIA GPU support (about 2 GB): CTranslate2 needs the CUDA 12 cuBLAS and cuDNN 9 DLLs.
+#   uv sync --extra cuda
+cuda = [
+    "nvidia-cublas-cu12>=12.4,<13",
+    "nvidia-cudnn-cu12>=9,<10",
+]
+
+[project.scripts]
+meetingrecorder = "meetingrecorder.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/meetingrecorder"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["model: loads the Whisper model (slow, GPU recommended)"]
+addopts = "-m 'not model'"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S"]
